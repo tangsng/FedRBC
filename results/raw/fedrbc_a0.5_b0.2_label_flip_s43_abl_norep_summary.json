@@ -1,0 +1,48 @@
+{
+  "run_name": "fedrbc_a0.5_b0.2_label_flip_s43_abl_norep",
+  "config": {
+    "method": "fedrbc",
+    "data_dir": "/home/user1/projects/fedrbc/code/experiments/../../data",
+    "out_dir": "/home/user1/projects/fedrbc/code/experiments/../../results/raw",
+    "seed": 43,
+    "n_clients": 20,
+    "k_per_round": 10,
+    "rounds": 60,
+    "local_epochs": 2,
+    "batch": 32,
+    "lr": 0.05,
+    "momentum": 0.9,
+    "eta_g": 1.0,
+    "prox_mu": 0.1,
+    "alpha": 0.5,
+    "beta": 0.2,
+    "attack": "label_flip",
+    "tau_c": 5.0,
+    "gamma": 0.3,
+    "kappa": 2.0,
+    "lambda_dec": 0.01,
+    "theta_h": 0.3,
+    "theta_m": 0.0,
+    "rep_weight": false,
+    "selection": null,
+    "decay": true,
+    "penalty": true,
+    "budget": 25.0,
+    "tag": "abl_norep",
+    "gpu": 1
+  },
+  "byz_clients": [
+    11,
+    13,
+    14,
+    18
+  ],
+  "final": {
+    "acc": 0.866421568627451,
+    "f1": 0.5208791208791209,
+    "auc": 0.8233802491232728
+  },
+  "best_f1": 0.5412445730824892,
+  "wall_sec": 41.272242069244385,
+  "selection": "rep"
+}

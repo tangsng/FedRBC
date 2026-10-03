@@ -1,0 +1,48 @@
+{
+  "run_name": "krum_a0.1_b0.2_label_flip_s42",
+  "config": {
+    "method": "krum",
+    "data_dir": "/home/user1/projects/fedrbc/code/experiments/../../data",
+    "out_dir": "/home/user1/projects/fedrbc/code/experiments/../../results/raw",
+    "seed": 42,
+    "n_clients": 20,
+    "k_per_round": 10,
+    "rounds": 60,
+    "local_epochs": 2,
+    "batch": 32,
+    "lr": 0.05,
+    "momentum": 0.9,
+    "eta_g": 1.0,
+    "prox_mu": 0.1,
+    "alpha": 0.1,
+    "beta": 0.2,
+    "attack": "label_flip",
+    "tau_c": 5.0,
+    "gamma": 0.3,
+    "kappa": 2.0,
+    "lambda_dec": 0.01,
+    "theta_h": 0.3,
+    "theta_m": 0.0,
+    "rep_weight": true,
+    "selection": null,
+    "decay": true,
+    "penalty": true,
+    "budget": 25.0,
+    "tag": "",
+    "gpu": 0
+  },
+  "byz_clients": [
+    4,
+    12,
+    17,
+    19
+  ],
+  "final": {
+    "acc": 0.8746936274509803,
+    "f1": 0.0,
+    "auc": NaN
+  },
+  "best_f1": 0.4281793229643184,
+  "wall_sec": 40.98880648612976,
+  "selection": "random"
+}

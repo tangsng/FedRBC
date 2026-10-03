@@ -1,0 +1,48 @@
+{
+  "run_name": "fltrust_a1.0_b0.2_label_flip_s42",
+  "config": {
+    "method": "fltrust",
+    "data_dir": "/home/user1/projects/fedrbc/code/experiments/../../data",
+    "out_dir": "/home/user1/projects/fedrbc/code/experiments/../../results/raw",
+    "seed": 42,
+    "n_clients": 20,
+    "k_per_round": 10,
+    "rounds": 60,
+    "local_epochs": 2,
+    "batch": 32,
+    "lr": 0.05,
+    "momentum": 0.9,
+    "eta_g": 1.0,
+    "prox_mu": 0.1,
+    "alpha": 1.0,
+    "beta": 0.2,
+    "attack": "label_flip",
+    "tau_c": 5.0,
+    "gamma": 0.3,
+    "kappa": 2.0,
+    "lambda_dec": 0.01,
+    "theta_h": 0.3,
+    "theta_m": 0.0,
+    "rep_weight": true,
+    "selection": null,
+    "decay": true,
+    "penalty": true,
+    "budget": 25.0,
+    "tag": "",
+    "gpu": 1
+  },
+  "byz_clients": [
+    4,
+    12,
+    17,
+    19
+  ],
+  "final": {
+    "acc": 0.8627450980392157,
+    "f1": 0.5813084112149532,
+    "auc": 0.9012927177045376
+  },
+  "best_f1": 0.6877470355731226,
+  "wall_sec": 44.58595371246338,
+  "selection": "random"
+}
