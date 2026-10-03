@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "FedRBC: Blockchain-Enabled Reputation-Weighted Robust Federated Learning for Healthcare IoT Edge Networks"
+authors:
+  - family-names: "Tang"
+    given-names: "Song"
+    email: "tangsng@live.cn"
+    affiliation: "Tianjin University; Hebei Academy of Sciences"
+  - family-names: "Jin"
+    given-names: "Zhigang"
+    email: "zgjin@tju.edu.cn"
+    affiliation: "Tianjin University"
+    corresponding: true
+  - family-names: "Wang"
+    given-names: "Zhiqiang"
+    email: "574465982@qq.com"
+    affiliation: "Hebei Academy of Sciences"
+repository-code: "https://github.com/tangsng/FedRBC"
+license: MIT
+keywords:
+  - federated learning
+  - byzantine robustness
+  - blockchain
+  - reputation
+  - healthcare IoT
+  - intrusion detection
+preferred-citation:
+  type: article
+  title: "FedRBC: Blockchain-Enabled Reputation-Weighted Robust Federated Learning for Privacy-Preserving Healthcare IoT Edge Networks"
+  journal: "Computers, Materials & Continua"
+  year: 2026
+  status: "under-review"
+  authors:
+    - family-names: "Tang"
+      given-names: "Song"
+    - family-names: "Jin"
+      given-names: "Zhigang"
+    - family-names: "Wang"
+      given-names: "Zhiqiang"

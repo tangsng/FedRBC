@@ -1,0 +1,5 @@
+Variant,F1,AUC
+FedRBC (full),0.568$\pm$0.097,0.847$\pm$0.022
+w/o reputation weighting,0.574$\pm$0.069,0.847$\pm$0.024
+w/o reputation-aware selection,0.368$\pm$0.319,0.836$\pm$0.017
+w/o decay & penalty,0.577$\pm$0.087,0.839$\pm$0.018
