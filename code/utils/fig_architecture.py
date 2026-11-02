@@ -9,6 +9,8 @@ SCI 1 区标准架构图与流程图（Fig 1-3，matplotlib 精绘，300 DPI PDF
   - Fig 1 重绘为清晰的三层架构图：层容器 + 模块分组 + 编号徽标数据流 + 图例。
   - Fig 3 重绘为声誉管理泳道图：编号徽标 + 紧凑布局 + 底部图例（修复超界与留白）。
   - 删除原 Fig 4（检测-遏制闭环改为正文文字表达）。
+  - 2026-11-03 可读性修订（R1.18）：默认标签字号 10→10.8、箭头标注 8.5→9.2、
+    徽标半径/字号加大（r=0.016, fs=8.5, mutation_scale=14.5）。
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -29,7 +31,7 @@ RED = "#C0392B"
 BROWN = "#B9770E"
 
 
-def box(ax, x, y, w, h, text, fill, fs=10, ec="#2C3E50", lw=1.1, bold=False,
+def box(ax, x, y, w, h, text, fill, fs=10.8, ec="#2C3E50", lw=1.1, bold=False,
         tc=TXT, zorder=3, round=0.02):
     b = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.01,rounding_size=%s" % round,
                        fc=fill, ec=ec, lw=lw, zorder=zorder)
@@ -41,9 +43,9 @@ def box(ax, x, y, w, h, text, fill, fs=10, ec="#2C3E50", lw=1.1, bold=False,
     return b
 
 
-def arrow(ax, x1, y1, x2, y2, text="", fs=8.5, color="#2C3E50", lw=1.5, style="-|>",
+def arrow(ax, x1, y1, x2, y2, text="", fs=9.2, color="#2C3E50", lw=1.5, style="-|>",
           ls="-", num=None, zorder=2, tx=0, ty=0.02, tc=TXT, conn="arc3,rad=0.0"):
-    a = FancyArrowPatch((x1, y1), (x2, y2), arrowstyle=style, mutation_scale=13,
+    a = FancyArrowPatch((x1, y1), (x2, y2), arrowstyle=style, mutation_scale=14.5,
                         color=color, lw=lw, linestyle=ls, connectionstyle=conn, zorder=zorder)
     ax.add_patch(a)
     if text:
@@ -53,7 +55,7 @@ def arrow(ax, x1, y1, x2, y2, text="", fs=8.5, color="#2C3E50", lw=1.5, style="-
                 path_effects=[pe.withStroke(linewidth=2.6, foreground="white")])
 
 
-def badge(ax, x, y, num, color="#2C3E50", r=0.014, fs=8):
+def badge(ax, x, y, num, color="#2C3E50", r=0.016, fs=8.5):
     """编号圆形徽标（SCI 架构图标准做法）。"""
     ax.add_patch(Circle((x, y), r, fc=color, ec="white", lw=1.0, zorder=6))
     ax.text(x, y, str(num), ha="center", va="center", fontsize=fs,

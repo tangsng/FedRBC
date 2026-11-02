@@ -15,6 +15,7 @@ import numpy as np
 class ReputationLedger:
     def __init__(self, n_clients, r0=0.5, gamma=0.3, kappa=2.0,
                  lambda_dec=0.01, theta_h=0.3, theta_m=0.0):
+        self.r0 = r0
         self.r = np.full(n_clients, r0, dtype=np.float64)
         self.gamma, self.kappa = gamma, kappa
         self.lambda_dec = lambda_dec
@@ -53,3 +54,8 @@ class ReputationLedger:
 
     def weights(self):
         return self.r.copy()
+
+    def reset(self):
+        """无跨轮记忆消融：声誉向量重置回冷启动值 r0（历史记录保留供绘图）。"""
+        self.r[:] = self.r0
+        self.history.append(self.r.copy())

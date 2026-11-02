@@ -34,14 +34,15 @@ plt.rcParams.update({
 
 METHODS = ["fedrbc", "raid", "fedgt", "eiffel"]
 LABEL = {"fedrbc": "FedRBC (Ours)", "raid": "RAID (2026)", "fedgt": "FedGT (2025)",
-         "eiffel": "EIFFeL (2022)"}
-COLOR = {"fedrbc": "#C0392B", "raid": "#8E44AD", "fedgt": "#2471A3", "eiffel": "#1E8449"}
-MARK = {"fedrbc": "o", "raid": "s", "fedgt": "^", "eiffel": "D"}
+         "eiffel": "EIFFeL (2022)", "fltrust": "FLTrust (2021)"}
+COLOR = {"fedrbc": "#C0392B", "raid": "#8E44AD", "fedgt": "#2471A3",
+         "eiffel": "#1E8449", "fltrust": "#D68910"}
+MARK = {"fedrbc": "o", "raid": "s", "fedgt": "^", "eiffel": "D", "fltrust": "v"}
 ATTACKS = ["sign_flip", "sybil", "label_flip"]
 ATK_LABEL = {"sign_flip": "Sign-flip", "sybil": "Sybil collusion",
              "label_flip": "Label-flip", "scaling": "Scaling",
              "noise": "Gaussian noise", "none": "No attack"}
-TAG = {"fedrbc": "v5", "raid": "v5", "fedgt": "v5", "eiffel": "v5"}
+TAG = {"fedrbc": "v5", "raid": "v5", "fedgt": "v5", "eiffel": "v5", "fltrust": "rev1"}
 
 
 def load_summary(method, alpha, beta, attack, dataset="wustl"):
@@ -53,6 +54,39 @@ def load_summary(method, alpha, beta, attack, dataset="wustl"):
         if d["config"].get("tag", "") != tag:
             continue
         if d["config"].get("dataset", "wustl") != dataset:
+            continue
+        out.append(d)
+    return out
+
+
+def load_rev10(method, alpha, beta, attack, dataset="wustl"):
+    """Round-1 主表 10-seed 数据：s42-46 在 tag=v5、s47-51 在 tag=rev1，取并集。"""
+    out, seen = [], set()
+    for f in sorted(glob.glob(os.path.join(
+            RAW, "%s_a%s_b%s_%s_s*_summary.json" % (method, alpha, beta, attack)))):
+        d = json.load(open(f))
+        t = d["config"].get("tag", "")
+        if t not in ("v5", "rev1"):
+            continue
+        if d["config"].get("dataset", "wustl") != dataset:
+            continue
+        # 排除消融/扩展实验的 rev1_* 变体 tag
+        s = d["config"]["seed"]
+        if (t, s) in seen:
+            continue
+        seen.add((t, s))
+        if t == "v5" and s not in (42, 43, 44, 45, 46):
+            continue
+        if t == "rev1" and s not in (47, 48, 49, 50, 51):
+            continue
+        # 默认配置指纹（排除 β/α 扫描）已在文件名层由 a/b 参数保证
+        if abs(float(d["config"].get("beta", 0.3)) - float(beta)) > 1e-9:
+            continue
+        if d["config"].get("dp_sigma", 0) or d["config"].get("root_poison", 0):
+            continue
+        if not d["config"].get("memory", True) and method == "fedrbc":
+            continue
+        if method == "fedrbc" and d["config"].get("soft_T", 0.3) not in (0.3, None):
             continue
         out.append(d)
     return out
@@ -74,19 +108,21 @@ def savefig(fig, name):
     print(name, "done")
 
 
-# ---------- Fig 5: 主表分组柱状 ----------
+# ---------- Fig 5: 主表分组柱状（Round-1：10-seed，5 方法含 FLTrust） ----------
 def fig5():
+    m5 = ["fedrbc", "fltrust", "eiffel", "raid", "fedgt"]
     fig, axes = plt.subplots(1, 3, figsize=(11.6, 3.6), sharey=True)
     for k, atk in enumerate(ATTACKS):
         ax = axes[k]
         xs = np.arange(3)
-        w = 0.19
-        for j, m in enumerate(METHODS):
-            ds = load_summary(m, "0.5", "0.3", atk)
+        w = 0.155
+        for j, m in enumerate(m5):
+            ds = load_rev10(m, "0.5", "0.3", atk)
+            print("  fig5 %s %s: n=%d" % (m, atk, len(ds)))
             means = [stat(ds, kk)[0] for kk in ("f1", "auc", "acc")]
             stds = [stat(ds, kk)[1] for kk in ("f1", "auc", "acc")]
             means = [0.0 if math.isnan(v) else v for v in means]
-            ax.bar(xs + (j - 1.5) * w, means, w, yerr=stds, capsize=2.5,
+            ax.bar(xs + (j - 2.0) * w, means, w, yerr=stds, capsize=2.5,
                    color=COLOR[m], label=(LABEL[m] if k == 0 else None),
                    edgecolor="white", linewidth=0.5, error_kw=dict(lw=0.8))
         ax.set_xticks(xs); ax.set_xticklabels(["F1", "AUC", "Acc"])
@@ -95,7 +131,7 @@ def fig5():
         if k == 0:
             ax.set_ylabel("Score")
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", ncol=4, frameon=False,
+    fig.legend(handles, labels, loc="upper center", ncol=5, frameon=False,
                bbox_to_anchor=(0.5, 1.05))
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     savefig(fig, "fig5_main_attacks")
@@ -131,7 +167,8 @@ def fig6():
                             color=COLOR[m], alpha=0.16, linewidth=0)
     ax.set_xlabel("Communication round $t$")
     ax.set_ylabel("Test F1-score")
-    ax.legend(loc="lower right")
+    # E4: 图例避让数据（曲线自左下向右上收敛后持稳，右上角为空白区）
+    ax.legend(loc="upper right")
     ax.set_ylim(0, 1.0)
     savefig(fig, "fig6_convergence")
 
@@ -175,7 +212,8 @@ def fig8():
     ax.set_xticklabels(["$\\alpha$=0.1\n(extreme)", "$\\alpha$=0.5\n(moderate)", "$\\alpha$=1.0\n(mild)"])
     ax.set_ylabel("Test F1-score")
     ax.set_ylim(0, 1.0)
-    ax.legend(loc="lower right", ncol=2)
+    # E4: 图例避让柱组（柱高 ≤0.7，上方留白充分）
+    ax.legend(loc="upper right", ncol=2)
     savefig(fig, "fig8_noniid")
 
 

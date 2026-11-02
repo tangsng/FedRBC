@@ -1,0 +1,19 @@
+{
+ "run_name": "centralized_s44_rev1",
+ "config": {
+  "seed": 44,
+  "epochs": 30,
+  "batch": 64,
+  "lr": 0.01,
+  "gpu": 0,
+  "data_dir": "/home/user1/projects/fedrbc/code/experiments/../../data",
+  "out_dir": "/home/user1/projects/fedrbc/code/experiments/../../results/raw"
+ },
+ "final": {
+  "acc": 0.867953431372549,
+  "f1": 0.607825295723385,
+  "auc": 0.9294760189946861
+ },
+ "best_f1": 0.6716899892357373,
+ "wall_sec": 10.126089572906494
+}

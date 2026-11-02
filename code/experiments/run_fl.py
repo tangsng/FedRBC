@@ -25,12 +25,13 @@ from algorithms.baselines_new import agg_raid, agg_fedgreed, agg_fedgt, agg_eiff
 from algorithms.reputation import ReputationLedger
 from algorithms.selection import (gen_client_profiles, random_select, rep_aware_select)
 from utils.common import set_seed, get_logger, save_json, CSVLogger
-from utils.attack import make_byzantine_set, apply_model_attacks
+from utils.attack import (make_byzantine_set, apply_model_attacks,
+                          make_backdoor_override, add_trigger, TRIG_IDX, TRIG_VAL)
 
 METHODS = ["fedavg", "fedprox", "krum", "trimmed_mean", "fltrust", "fedrbc",
            "raid", "fedgt", "eiffel"]
 # 模型层攻击（仿真威胁模型）：训练正常进行，update 在聚合前被篡改
-MODEL_ATTACKS = ("scaling", "sign_flip", "sybil", "noise")
+MODEL_ATTACKS = ("scaling", "sign_flip", "sybil", "noise", "lie")
 
 def parse_args():
     ap = argparse.ArgumentParser()
@@ -51,8 +52,17 @@ def parse_args():
     ap.add_argument("--prox-mu", type=float, default=0.1)
     ap.add_argument("--alpha", type=float, default=0.5, help="Dirichlet Non-IID 浓度")
     ap.add_argument("--beta", type=float, default=0.2, help="Byzantine 比例")
-    ap.add_argument("--attack", choices=["none", "label_flip", "scaling", "sign_flip", "sybil", "noise"],
+    ap.add_argument("--attack", choices=["none", "label_flip", "scaling", "sign_flip", "sybil", "noise",
+                                          "lie", "backdoor"],
                     default="label_flip")
+    ap.add_argument("--dp-sigma", type=float, default=0.0,
+                    help="中心化 DP：聚合结果加 N(0, (sigma*C/sqrt(K))^2)，C=当轮 median delta 范数；0=关闭")
+    ap.add_argument("--root-poison", type=float, default=0.0,
+                    help="root set 被污染比例（标签翻转注入），模拟 root-set poisoning")
+    ap.add_argument("--no-memory", dest="memory", action="store_false",
+                    help="声誉每轮重置 r0（无跨轮记忆消融）")
+    ap.add_argument("--root-size", type=int, default=500,
+                    help="root 验证集规模（敏感性分析用）")
     ap.add_argument("--attack-gamma", type=float, default=5.0, help="scaling/sybil 幅度放大系数")
     ap.add_argument("--noise-sigma", type=float, default=1.0, help="noise 攻击范数倍数")
     # FedRBC 超参
@@ -123,11 +133,23 @@ def main():
         X_tr, y_tr, X_te, y_te, X_root, y_root, _, feat_dim = lp_cic(csv_path, seed=args.seed)
     else:
         csv_path = download(os.path.abspath(args.data_dir))
-        X_tr, y_tr, X_te, y_te, X_root, y_root, _, feat_dim = load_and_preprocess(csv_path, seed=args.seed)
+        X_tr, y_tr, X_te, y_te, X_root, y_root, _, feat_dim = load_and_preprocess(
+            csv_path, root_size=args.root_size, seed=args.seed)
     parts = dirichlet_partition(y_tr, args.n_clients, alpha=args.alpha, seed=args.seed)
     X_parts = [X_tr[idx] for idx in parts]
     y_parts = [y_tr[idx] for idx in parts]
     data_weights = [len(idx) for idx in parts]
+
+    # ---------- root-set poisoning（R2.3）：按比例翻转 root 集标签 ----------
+    if args.root_poison > 0.0:
+        rp_rng = np.random.default_rng(args.seed + 4242)
+        n_poison = int(round(args.root_poison * len(y_root)))
+        if n_poison > 0:
+            pidx = rp_rng.choice(len(y_root), size=n_poison, replace=False)
+            y_root = np.asarray(y_root).copy()
+            y_root[pidx] = 1 - y_root[pidx]
+            lg.info("root-set poisoned: %d/%d labels flipped (eps=%.0f%%)"
+                    % (n_poison, len(y_root), 100 * args.root_poison))
 
     # ---------- 攻击 ----------
     is_model_attack = args.attack in MODEL_ATTACKS
@@ -136,14 +158,22 @@ def main():
 
     # ---------- 引擎与账本 ----------
     # 模型层攻击：训练正常（不传 byz_set 给引擎），update 在聚合前篡改；
-    # 数据层攻击（label_flip）：由引擎在本地训练时翻转标签。
+    # 数据层攻击（label_flip / backdoor）：backdoor 通过 data_override 注入触发样本。
+    is_bd = (args.attack == "backdoor")
     engine = FLEngine(lambda: MLPIDS(in_dim=feat_dim), X_parts, y_parts,
                       X_root, y_root, X_te, y_te, device,
-                      byz_set=(set() if is_model_attack else byz_set),
+                      byz_set=(set() if (is_model_attack or is_bd) else byz_set),
                       local_epochs=args.local_epochs,
                       batch=args.batch, lr=args.lr, momentum=args.momentum,
                       prox_mu=(args.prox_mu if args.method == "fedprox" else 0.0),
                       seed=args.seed)
+    # backdoor：为每个恶意客户端预生成植入触发的本地数据（frac=0.3 样本 -> 攻击类）
+    bd_data = {}
+    if is_bd:
+        for cid in byz_set:
+            bd_data[cid] = make_backdoor_override(X_parts[cid], y_parts[cid],
+                                                  np.random.default_rng(args.seed + cid),
+                                                  frac=0.3)
     ledger = ReputationLedger(args.n_clients, gamma=args.gamma, kappa=args.kappa,
                               lambda_dec=(args.lambda_dec if args.decay else 0.0),
                               theta_h=args.theta_h,
@@ -165,7 +195,12 @@ def main():
         else:
             sel = random_select(args.n_clients, args.k_per_round, rng)
         # ---- 本地训练（Eq. 4） ----
-        deltas = torch.stack([engine.local_train(cid) for cid in sel])
+        if is_bd:
+            deltas = torch.stack([engine.local_train(cid, data_override=bd_data[cid])
+                                   if cid in byz_set else engine.local_train(cid)
+                                   for cid in sel])
+        else:
+            deltas = torch.stack([engine.local_train(cid) for cid in sel])
         # ---- 模型层攻击注入（聚合前篡改恶意客户端 update） ----
         if is_model_attack and byz_set:
             byz_local = [j for j, cid in enumerate(sel) if cid in byz_set]
@@ -211,9 +246,23 @@ def main():
                                      soft_T=args.soft_T,
                                      soft_T_anneal=args.soft_T_anneal)
             ledger.update(sel, scores, violations)  # Eq. 11-12（合约模拟，含违规分支）
+            if not args.memory:
+                ledger.reset()  # 无跨轮记忆消融：每轮重置回 r0
+        # ---- 中心化 DP：聚合结果加高斯噪声（敏感度 S=C/K 的 sigma 倍） ----
+        if args.dp_sigma > 0.0:
+            C = deltas.norm(dim=1).median()
+            agg = agg + torch.randn_like(agg) * (args.dp_sigma * C / float(deltas.size(0)) ** 0.5)
         engine.apply_update(agg, eta_g=args.eta_g)
         # ---- 评估 ----
         m = engine.evaluate(threshold=args.threshold)
+        if is_bd:
+            # ASR：benign 测试样本植入触发器后被预测为攻击类的比例
+            with torch.no_grad():
+                Xb = engine.X_te[engine.y_te == 0] if isinstance(engine.X_te, torch.Tensor) \
+                    else torch.from_numpy(engine.X_te[engine.y_te == 0]).to(device)
+                Xtr = Xb.clone().to(device)
+                Xtr[:, list(TRIG_IDX)] = TRIG_VAL
+                m["asr"] = float((engine.global_model(Xtr).argmax(dim=1) == 1).float().mean())
         best_f1 = max(best_f1, m["f1"])
         csv.log([t, "%.5f" % m["acc"], "%.5f" % m["f1"], "%.5f" % m["auc"], "", "%.2f" % (time.time() - t0)])
         if t % 10 == 0 or t == 1:

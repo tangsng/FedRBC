@@ -287,11 +287,11 @@ def gen_tables():
     ])
     t2 = T("Simulation parameters (held fixed across all experiments).","tab:t2",
            [["Group","Parameter","Value","Group","Parameter","Value"],"l"+C*5], [
-        ["Federation","clients $N$ / quorum $K$","20 / 10","RWRA","$z_{\\mathrm{th}}$ / $\\kappa$ / $T_s$","2 / 2 / 0.3"],
+        ["Federation","clients $N$ / quorum $K$","20 / 10","RWRA","$z_{\\mathrm{th}}$ / $\\kappa_c$ / $T_s$","2 / 2 / 0.3"],
         ["Training","rounds $T$ / epochs $E$","60 / 2","Contract","$\\gamma$ / $\\kappa$ / $\\lambda_{\\mathrm{dec}}$","0.3 / 2.0 / 0.01"],
         ["Training","batch / lr / momentum","32 / 0.05 / 0.9","Contract","$\\theta_h$ / $\\theta_m$ / $r_{\\mathrm{q}}$","0.3 / 0.0 / 0.15"],
         ["Data","root set $\\lvert\\mathcal{D}_r\\rvert$","500","Selection","budget $B$","25 (cost units)"],
-        ["Data","Dirichlet $\\alpha$ (default)","0.5","Protocol","seeds","$\\{42, 43, 44, 45, 46\\}$"],
+        ["Data","Dirichlet $\\alpha$ (default)","0.5","Protocol","seeds","42--51 (main), 42--46 / 42--44 (aux)"],
         ["Threat","Byzantine ratio $\\beta$ (default)","30\\%","Testbed","GPUs","2$\\times$ V100S-32GB"],
         ["Selection","utility $u_i$ / cost $c_i$","$\\mathcal{U}[0,1]$ / $\\mathcal{U}[1,5]$","---","---","---"],
     ])
@@ -302,20 +302,32 @@ def gen_tables():
         ["EIFFeL [B5]","2022","partial (coord. clip)","$\\checkmark$ if $f<K/2$","$\\times$ (plurality forge)","partial","$\\times$","$\\times$"],
         ["\\textbf{FedRBC}","---","$\\checkmark$ (Layer-0 + rel. clip)","$\\checkmark$ (softmax gate, Eq. 6)","$\\checkmark$ (root gate + ledger)","$\\checkmark$ (evidence weighting)","$\\checkmark$ (on-chain)","$\\checkmark$ (Eq. 11)"],
     ])
-    t4 = T("Final-round detection metrics under three attack classes ($\\beta=30\\%$, $\\alpha=0.5$; mean $\\pm$ std, 5 seeds). Best per row in bold.","tab:t4",
-           [["Attack","Method","F1","AUC","Acc"],"l"+C*4], [
-        ["Sign-flip","\\textbf{FedRBC (Ours)}","\\textbf{0.588$\\pm$0.062}","\\textbf{0.887$\\pm$0.007}","0.875$\\pm$0.032"],
-        ["","RAID (2026)","0.223$\\pm$0.249","0.554$\\pm$0.070","0.636$\\pm$0.344"],
-        ["","FedGT (2025)","0.190$\\pm$0.258","0.587$\\pm$0.022","0.717$\\pm$0.530"],
-        ["","EIFFeL (2022)","0.502$\\pm$0.097","0.832$\\pm$0.008","0.814$\\pm$0.026"],
-        ["Sybil collusion","\\textbf{FedRBC (Ours)}","\\textbf{0.570$\\pm$0.056}","\\textbf{0.885$\\pm$0.009}","0.865$\\pm$0.010"],
-        ["","RAID (2026)","0.128$\\pm$0.167","0.558$\\pm$0.000","0.689$\\pm$0.000"],
-        ["","FedGT (2025)","0.142$\\pm$0.285","0.567$\\pm$0.001","0.886$\\pm$0.000"],
-        ["","EIFFeL (2022)","0.089$\\pm$0.122","0.500$\\pm$0.001","0.579$\\pm$0.000"],
-        ["Label-flip","\\textbf{FedRBC (Ours)}","\\textbf{0.561$\\pm$0.057}","\\textbf{0.877$\\pm$0.008}","0.861$\\pm$0.010"],
-        ["","RAID (2026)","0.405$\\pm$0.263","0.726$\\pm$0.248","0.723$\\pm$0.000"],
-        ["","FedGT (2025)","0.252$\\pm$0.262","0.560$\\pm$0.110","0.588$\\pm$0.000"],
-        ["","EIFFeL (2022)","0.454$\\pm$0.169","0.795$\\pm$0.022","0.675$\\pm$0.000"],
+    t4 = T("Final-round detection metrics under three attack classes ($\\beta=30\\%$, $\\alpha=0.5$; F1 and AUC, mean $\\pm$ std; 10 seeds for FedRBC/FLTrust/EIFFeL/RAID/FedGT, 5 for Krum and trimmed mean; Holm-corrected Welch contrasts quoted in the text). Best per column in bold.","tab:t4",
+           [["Attack","Method","F1","AUC"],"l"+C*3], [
+        ["Sign-flip","\\textbf{FedRBC (Ours)}","0.567$\\pm$0.060","\\textbf{0.881$\\pm$0.019}"],
+        ["","FLTrust","0.570$\\pm$0.071","0.857$\\pm$0.021"],
+        ["","Krum ($n{=}5$)","0.469$\\pm$0.069","0.825$\\pm$0.014"],
+        ["","Trimmed mean ($n{=}5$)","0.499$\\pm$0.082","0.836$\\pm$0.032"],
+        ["","EIFFeL (2022)","0.496$\\pm$0.082","0.827$\\pm$0.028"],
+        ["","RAID (2026)","0.194$\\pm$0.210","0.553$\\pm$0.166"],
+        ["","FedGT (2025)","0.189$\\pm$0.237","0.556$\\pm$0.166"],
+        ["Sybil collusion","\\textbf{FedRBC (Ours)}","\\textbf{0.561$\\pm$0.066}","\\textbf{0.879$\\pm$0.023}"],
+        ["","FLTrust","0.567$\\pm$0.076","0.857$\\pm$0.023"],
+        ["","Krum ($n{=}5$)","0.142$\\pm$0.216","0.536$\\pm$0.128"],
+        ["","Trimmed mean ($n{=}5$)","0.149$\\pm$0.055","0.455$\\pm$0.062"],
+        ["","EIFFeL (2022)","0.070$\\pm$0.113","0.508$\\pm$0.024"],
+        ["","RAID (2026)","0.097$\\pm$0.131","0.525$\\pm$0.092"],
+        ["","FedGT (2025)","0.199$\\pm$0.244","0.572$\\pm$0.139"],
+        ["Label-flip","\\textbf{FedRBC (Ours)}","0.558$\\pm$0.049","\\textbf{0.870$\\pm$0.024}"],
+        ["","FLTrust","0.557$\\pm$0.083","0.862$\\pm$0.020"],
+        ["","Krum ($n{=}5$)","0.523$\\pm$0.065","0.826$\\pm$0.021"],
+        ["","Trimmed mean ($n{=}5$)","0.462$\\pm$0.167","0.837$\\pm$0.059"],
+        ["","EIFFeL (2022)","0.466$\\pm$0.158","0.782$\\pm$0.133"],
+        ["","RAID (2026)","0.397$\\pm$0.241","0.728$\\pm$0.171"],
+        ["","FedGT (2025)","0.266$\\pm$0.264","0.589$\\pm$0.167"],
+        ["No attack (refs.)","Centralized (pooled)","0.606$\\pm$0.062","0.920$\\pm$0.012"],
+        ["","Clean FedAvg","0.401$\\pm$0.368","0.728$\\pm$0.209"],
+        ["","FedRBC (no attack)","0.540$\\pm$0.081","0.884$\\pm$0.019"],
     ])
     t5 = T("Cross-dataset generalization on CICIoT2023 ($\\beta=30\\%$, $\\alpha=0.5$; mean $\\pm$ std, 3 seeds). Best F1 per row in bold.","tab:t5",
            [["Attack","\\textbf{FedRBC (Ours)}","RAID (2026)","FedGT (2025)","EIFFeL (2022)"],"l"+C*4], [
@@ -323,7 +335,56 @@ def gen_tables():
         ["Sybil collusion","\\textbf{0.730$\\pm$0.344}","0.592$\\pm$0.514","0.629$\\pm$0.546","0.417$\\pm$0.400"],
         ["Label-flip","\\textbf{0.992$\\pm$0.000}","0.615$\\pm$0.537","0.575$\\pm$0.489","0.947$\\pm$0.078"],
     ])
-    return {1: t1, 2: t2, 3: t3, 4: t4, 5: t5}
+    t6 = T("Extended threat-model results (WUSTL-EHMS-2020; mean$\\pm$std; LIE 5 seeds, backdoor 3 seeds, root-poison 3 seeds, Byzantine-ratio extension 3 seeds). ASR = attack success rate of trigger-carrying benign samples.","tab:t6",
+           [["Study","Method","F1","ASR"],"l"+C*3], [
+        ["LIE (collusive)","\\textbf{FedRBC (Ours)}","0.517$\\pm$0.054","---"],
+        ["","FLTrust","0.605$\\pm$0.066","---"],
+        ["","EIFFeL (2022)","0.290$\\pm$0.286","---"],
+        ["","FedAvg","0.238$\\pm$0.297","---"],
+        ["Backdoor (trigger)","\\textbf{FedRBC (Ours)}","0.604$\\pm$0.099","0.994$\\pm$0.005"],
+        ["","FLTrust","0.579$\\pm$0.074","0.996$\\pm$0.003"],
+        ["","FedAvg","0.622$\\pm$0.108","0.994$\\pm$0.007"],
+        ["Root-poison $\\varepsilon{=}0.3$, Sybil","\\textbf{FedRBC (Ours)}","0.566$\\pm$0.101","---"],
+        ["","FLTrust","0.417$\\pm$0.145","---"],
+        ["Root-poison $\\varepsilon{=}0.2$, Sybil","\\textbf{FedRBC (Ours)}","0.584$\\pm$0.084","---"],
+        ["","FLTrust","0.467$\\pm$0.204","---"],
+        ["Root-poison $\\varepsilon{=}0.1$, Sybil","\\textbf{FedRBC (Ours)}","0.557$\\pm$0.087","---"],
+        ["","FLTrust","0.522$\\pm$0.241","---"],
+        ["$\\beta{=}0.5$, Sign-flip","\\textbf{FedRBC (Ours)}","0.519$\\pm$0.098","---"],
+        ["","FLTrust","0.315$\\pm$0.310","---"],
+        ["","EIFFeL (2022)","0.148$\\pm$0.129","---"],
+        ["","FedAvg","0.074$\\pm$0.129","---"],
+        ["$\\beta{=}0.5$, Sybil","\\textbf{FedRBC (Ours)}","0.564$\\pm$0.038","---"],
+        ["","FLTrust","0.384$\\pm$0.316","---"],
+        ["","EIFFeL (2022)","0.138$\\pm$0.239","---"],
+        ["","FedAvg","0.148$\\pm$0.129","---"],
+    ])
+    t7 = T("Accuracy--robustness trade-off under the DP output-perturbation layer (Eq. 16; F1, 3 seeds; sign-flip and Sybil attacks at $\\beta=30\\%$).","tab:t7",
+           [["$\\sigma_{\\mathrm{dp}}$","Method","Sign-flip F1","Sybil F1"],"l"+C*3], [
+        ["0.005","\\textbf{FedRBC (Ours)}","0.608$\\pm$0.040","0.549$\\pm$0.093"],
+        ["","FLTrust","0.591$\\pm$0.095","0.539$\\pm$0.025"],
+        ["","EIFFeL (2022)","0.484$\\pm$0.114","0.148$\\pm$0.129"],
+        ["","FedAvg","0.107$\\pm$0.185","0.149$\\pm$0.129"],
+        ["0.02","\\textbf{FedRBC (Ours)}","0.585$\\pm$0.044","0.510$\\pm$0.096"],
+        ["","FLTrust","0.556$\\pm$0.158","0.497$\\pm$0.023"],
+        ["","EIFFeL (2022)","0.467$\\pm$0.119","0.269$\\pm$0.057"],
+        ["","FedAvg","0.139$\\pm$0.136","0.129$\\pm$0.115"],
+        ["0.1","\\textbf{FedRBC (Ours)}","0.447$\\pm$0.199","0.448$\\pm$0.212"],
+        ["","FLTrust","0.220$\\pm$0.137","0.222$\\pm$0.002"],
+        ["","EIFFeL (2022)","0.254$\\pm$0.043","0.089$\\pm$0.116"],
+        ["","FedAvg","0.126$\\pm$0.110","0.086$\\pm$0.149"],
+    ])
+    t8 = T("Component ablation under three attack classes (F1, 3 matched seeds; same-seed full-system reference).","tab:t8",
+           [["Configuration","Sign-flip","Sybil","Label-flip"],"l"+C*3], [
+        ["FedRBC (full, same seeds)","0.602$\\pm$0.081","0.581$\\pm$0.075","0.578$\\pm$0.072"],
+        ["$-$ directional gate","0.591$\\pm$0.063","0.538$\\pm$0.032","0.564$\\pm$0.056"],
+        ["$-$ relative clipping","0.520$\\pm$0.035","0.585$\\pm$0.052","0.555$\\pm$0.072"],
+        ["$-$ Layer-0 filter","0.558$\\pm$0.083","0.546$\\pm$0.101","0.575$\\pm$0.063"],
+        ["$-$ reputation weighting","0.552$\\pm$0.118","0.561$\\pm$0.021","0.580$\\pm$0.044"],
+        ["$-$ selection (random)","0.497$\\pm$0.212","0.616$\\pm$0.048","0.503$\\pm$0.226"],
+        ["$-$ cross-round memory (ledger reset)","0.564$\\pm$0.022","0.604$\\pm$0.035","0.610$\\pm$0.034"],
+    ])
+    return {1: t1, 2: t2, 3: t3, 4: t4, 5: t5, 6: t6, 7: t7, 8: t8}
 
 TABLES = gen_tables()
 
@@ -332,11 +393,11 @@ FIG_MAP = {
     "Fig. 1": ("fig1_architecture", "FedRBC system architecture for healthcare IoT edge networks. Raw telemetry never leaves the sensing layer; only parameter deltas and scalar evidence cross layer boundaries. Numbered flows: (1) model updates $\\Delta_i$ with content hash (local SGD, Eq.~2); (2) root reference $\\Delta_{\\rm root}$ (Eq.~3); (3) evidence submission $\\mathrm{writeEvidence}(i, s_i)$; (4) on-chain reputation read/write; (5) reputation feedback $\\mathbf{r}(t)$ to selection and aggregation weights; (6) containment trigger (Eq.~12); (7) SDN isolation of the compromised device. The red dashed path marks the adversarial channel of the MitM device."),
     "Fig. 2": ("fig2_sequence", "Interaction sequence of one federated round in FedRBC. Steps (1)--(6) constitute the training loop; steps (7)--(8) fire only when a client's on-chain reputation crosses the quarantine threshold. Evidence and reputation are the only values committed on-chain; model payloads stay off-chain, bound to their evidence by content hashes."),
     "Fig. 3": ("fig3_repflow", "On-chain reputation management workflow (Alg. 2). Each evidence write is routed to the reward, penalty, or grey-zone branch by the evidence thresholds; non-participating clients undergo temporal decay; quarantine is triggered when any reputation falls below $r_{\\rm q}$, emitting the containment event consumed by the SDN controller."),
-    "Fig. 4": ("fig5_main_attacks", "Final-round F1, AUC, and accuracy under the three attack classes ($\\beta$=30\\%, $\\alpha$=0.5; mean$\\pm$std over 5 seeds). FedRBC (red) attains the highest F1 and AUC in every scenario and the smallest variance; error bars denote one standard deviation."),
-    "Fig. 5": ("fig7_beta_sweep", "Test F1 versus Byzantine ratio $\\beta$ under Sybil collusion ($\\alpha$=0.5; mean$\\pm$std, 3 seeds). FedRBC stays flat while FedGT's binary identification collapses once a forged plurality forms, and the statistical baselines fail, because only a plurality-independent reference plus persistent trust survives high $\\beta$."),
+    "Fig. 4": ("fig5_main_attacks", "Final-round F1 and AUC under the three attack classes ($\\beta$=30\\%, $\\alpha$=0.5; mean$\\pm$std, 10 seeds). FedRBC (red) attains the best AUC and the smallest F1 variance in every scenario; error bars denote one standard deviation."),
+    "Fig. 5": ("fig7_beta_sweep", "Test F1 versus Byzantine ratio $\\beta$ under Sybil collusion ($\\alpha$=0.5; mean$\\pm$std, 3 seeds, 5 at $\\beta$=30\%). FedRBC stays flat while FedGT's binary identification collapses once a forged plurality forms, and the statistical baselines fail, because only a plurality-independent reference plus persistent trust survives high $\\beta$."),
     "Fig. 6": ("fig8_noniid", "Test F1 versus Dirichlet concentration $\\alpha$ under Sybil collusion ($\\beta$=30\\%; mean$\\pm$std, 3 seeds). FedRBC degrades most gracefully: it is the only system above $0.3$ at the extreme $\\alpha$=0.1 and holds a 15.6-point lead at $\\alpha$=1.0."),
-    "Fig. 7": ("fig6_convergence", "Per-round test F1 under Sybil collusion ($\\beta$=30\\%, $\\alpha$=0.5; mean$\\pm$std band over 3 seeds). FedRBC plateaus within roughly 10 rounds, because quarantined adversaries are excluded from selection rather than merely down-weighted at aggregation."),
-    "Fig. 8": ("fig9_repdyn", "On-chain reputation trajectories under Sybil collusion (a representative single seed, 60 rounds). Byzantine reputations (red) decay along the theoretical bound of Prop. 1 (dotted) and never recover after quarantine; honest reputations (green) erode under grey-zone penalization but recover once the quorum cleans. The trajectory is illustrative rather than a seed-averaged claim; the suppression-time bound of Eq. 10 is exact for the Byzantine curves in all seeds."),
+    "Fig. 7": ("fig6_convergence", "Per-round test F1 under Sybil collusion ($\\beta$=30\\%, $\\alpha$=0.5; mean$\\pm$std band over 5 seeds). FedRBC plateaus within roughly 10 rounds, because quarantined adversaries are excluded from selection rather than merely down-weighted at aggregation."),
+    "Fig. 8": ("fig9_repdyn", "On-chain reputation trajectories under Sybil collusion (a representative single seed, 60 rounds). Byzantine reputations (red) are driven to the bottom of the selection order --- the round-60 median across all attack runs is 0.009 versus 0.109 for honest clients (a 12$\\times$ separation). Honest reputations (green) also erode in the late phase as converging updates make directional evidence noisy, so the quarantine line operates as a relative-discrimination threshold; the F1 defence is carried by the aggregation-time gate (cf. the no-memory ablation, Section 5.9). The dotted curve is the every-round-penalization bound of Prop. 1 ($T_0{=}2$); measured crossings are slower because adversaries are not scored in every round, consistent with the intermittent-exposure analysis of Appendix B.2."),
     "Fig. 9": ("fig10_mttc", "Mean time to containment versus utilization $\\rho=\\lambda_a/\\mu$ (M/M/1 emulation, Eq. 12). The FedRBC edge loop stays flat at $\\approx$3.3 s while the cloud-roundtrip baseline grows from 6.7 s to 16.1 s --- a 50--80\\% reduction consistent with Thm. 2."),
 }
 
@@ -528,7 +589,7 @@ def build_tex(abstract, keywords, secs, thebibliography, appendix_algo, appendix
 
 \authorcontributions{The authors confirm contribution to the paper as follows: Conceptualization, Song Tang and Zhigang Jin; methodology, Song Tang; software, Song Tang; validation, Song Tang and Zhiqiang Wang; formal analysis, Song Tang; investigation, Song Tang and Zhiqiang Wang; resources, Zhigang Jin; data curation, Song Tang; writing---original draft preparation, Song Tang; writing---review and editing, Zhigang Jin and Zhiqiang Wang; visualization, Song Tang; supervision, Zhigang Jin; project administration, Zhigang Jin; funding acquisition, Zhigang Jin. All authors reviewed and approved the final version of the manuscript.}
 
-\availabilityofdataandmaterials{The source code and raw data that support the findings of this study are openly available in the FedRBC repository at \url{https://github.com/tangsng/FedRBC}.}
+\availabilityofdataandmaterials{The complete package supporting this study is openly available in the FedRBC repository at \url{https://github.com/tangsng/FedRBC}: training, attack, and aggregation code; the Solidity contract suite; per-seed raw results (JSON summaries, per-round CSV, reputation trajectories) for all 388 runs of the revised evaluation; figure- and table-generation scripts that read only the released data; and a README reconstructing every table and figure from raw files with one command per artifact.}
 
 \ethicsapproval{Not applicable.}
 
