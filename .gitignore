@@ -38,3 +38,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Generated figures (regenerate via code/utils/plots_sim.py)
+results/figures/
