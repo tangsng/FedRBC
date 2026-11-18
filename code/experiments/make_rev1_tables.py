@@ -75,6 +75,10 @@ print("| | Clean FedAvg | %s | %s |" % (
     cell("upper_noattack", "fedavg", "none"), cell("upper_noattack", "fedavg", "none", "auc")))
 print("| | FedRBC (no attack) | %s | %s |" % (
     cell("upper_noattack", "fedrbc", "none"), cell("upper_noattack", "fedrbc", "none", "auc")))
+print("| | EIFFeL (no attack) | %s | %s |" % (
+    cell("upper_noattack", "eiffel", "none"), cell("upper_noattack", "eiffel", "none", "auc")))
+print("| | RAID (no attack) | %s | %s |" % (
+    cell("upper_noattack", "raid", "none"), cell("upper_noattack", "raid", "none", "auc")))
 
 print()
 print("=" * 70)
