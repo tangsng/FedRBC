@@ -64,7 +64,7 @@ def badge(ax, x, y, num, color="#2C3E50", r=0.016, fs=8.5):
 
 # ================= Fig 1: 系统总体架构（三层 + 编号数据流 + 底部图例） =================
 def fig1():
-    fig, ax = plt.subplots(figsize=(12.2, 8.6))
+    fig, ax = plt.subplots(figsize=(12.2, 7.0))
     ax.set_xlim(0, 1); ax.set_ylim(-0.062, 1.0); ax.axis("off")
 
     # ---- 三层容器 ----
@@ -143,8 +143,6 @@ def fig1():
     arrow(ax, 0.36, 0.815, 0.29, 0.815, "", color=PURPLE, lw=1.4,
           style="<|-|>", zorder=2)
     badge(ax, 0.325, 0.808, 4, color=PURPLE)
-    ax.text(0.325, 0.972, "read/write $r_i$", fontsize=8.0, color=PURPLE,
-            ha="center", style="italic", zorder=3)
 
     # (5) 账本 → 聚合服务器（声誉反馈到选择/权重）
     arrow(ax, 0.20, 0.73, 0.36, 0.56, "", color=PURPLE, lw=1.4, zorder=2)
@@ -155,8 +153,6 @@ def fig1():
     # (6) 合约 → SDN（遏制触发，文字置于箱体上方）
     arrow(ax, 0.66, 0.815, 0.72, 0.815, "", color=RED, lw=1.4, ls="--", zorder=2)
     badge(ax, 0.69, 0.808, 6, color=RED)
-    ax.text(0.69, 0.972, "trigger $r_i<r_{\\rm q}$ (Eq. 12)", fontsize=8.0,
-            color=RED, ha="center", style="italic", zorder=3)
 
     # (7) SDN → 攻击者设备（隔离，沿右缘竖直路径，避开中部图元）
     arrow(ax, 0.90, 0.73, 0.887, 0.19, "", color=RED, lw=1.5, ls="--", zorder=2)
@@ -183,7 +179,7 @@ def fig1():
 
 # ================= Fig 2: 单轮联邦交互时序图 =================
 def fig2():
-    fig, ax = plt.subplots(figsize=(11.4, 8.2))
+    fig, ax = plt.subplots(figsize=(11.4, 6.8))
     ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.axis("off")
 
     actors = [("IoT Client $i$", 0.10), ("Edge Server", 0.36),
@@ -230,7 +226,7 @@ def fig2():
 
 # ================= Fig 3: 链上声誉管理流程（泳道 + 编号徽标 + 图例） =================
 def fig3():
-    fig, ax = plt.subplots(figsize=(11.2, 8.0))
+    fig, ax = plt.subplots(figsize=(11.2, 6.6))
     ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.axis("off")
 
     actors = [("Edge Server", 0.14), ("Smart Contract", 0.44),

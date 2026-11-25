@@ -111,7 +111,7 @@ def savefig(fig, name):
 # ---------- Fig 5: 主表分组柱状（Round-1：10-seed，5 方法含 FLTrust） ----------
 def fig5():
     m5 = ["fedrbc", "fltrust", "eiffel", "raid", "fedgt"]
-    fig, axes = plt.subplots(1, 3, figsize=(11.6, 3.6), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(11.6, 3.0), sharey=True)
     for k, atk in enumerate(ATTACKS):
         ax = axes[k]
         xs = np.arange(3)
@@ -139,7 +139,7 @@ def fig5():
 
 # ---------- Fig 6: 收敛曲线（sybil） ----------
 def fig6():
-    fig, ax = plt.subplots(figsize=(6.6, 4.0))
+    fig, ax = plt.subplots(figsize=(6.6, 3.3))
     for m in METHODS:
         runs = []
         for f in sorted(glob.glob(os.path.join(
@@ -175,7 +175,7 @@ def fig6():
 
 # ---------- Fig 7: β 扫描（sybil） ----------
 def fig7():
-    fig, ax = plt.subplots(figsize=(6.6, 4.0))
+    fig, ax = plt.subplots(figsize=(6.6, 3.3))
     betas = ["0.1", "0.2", "0.3", "0.4"]
     for m in METHODS:
         ys, es = [], []
@@ -196,7 +196,7 @@ def fig7():
 
 # ---------- Fig 8: Non-IID 敏感性 ----------
 def fig8():
-    fig, ax = plt.subplots(figsize=(6.8, 4.0))
+    fig, ax = plt.subplots(figsize=(6.8, 3.3))
     alphas = ["0.1", "0.5", "1.0"]
     xs = np.arange(3); w = 0.19
     for j, m in enumerate(METHODS):
@@ -227,7 +227,7 @@ def fig9():
     byz = json.load(open(sj))["byz_clients"] if os.path.exists(sj) else []
     T = R.shape[0] - 1
     x = np.arange(0, T + 1)
-    fig, ax = plt.subplots(figsize=(6.8, 4.0))
+    fig, ax = plt.subplots(figsize=(6.8, 3.3))
     honest = [i for i in range(R.shape[1]) if i not in byz]
     H = R[:, honest]
     ax.fill_between(x, np.percentile(H, 10, axis=1), np.percentile(H, 90, axis=1),
@@ -253,7 +253,7 @@ def fig10():
     if not os.path.exists(f):
         print("fig10: mttc.csv 缺失"); return
     df = pd.read_csv(f)
-    fig, ax = plt.subplots(figsize=(6.6, 4.0))
+    fig, ax = plt.subplots(figsize=(6.6, 3.3))
     for col, lb, c in [("mttc_edge", "FedRBC edge containment (Eq. 12)", "#C0392B"),
                        ("mttc_cloud", "Cloud-roundtrip baseline (Eq. 13)", "#2471A3")]:
         if col in df.columns:
