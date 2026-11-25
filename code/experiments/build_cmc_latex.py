@@ -256,7 +256,7 @@ def T(caption, label, cols, rows):
     header = " & ".join(r"\textbf{%s}" % c for c in cols[0]) + r"\\"
     body = []
     for r in rows:
-        body.append(" & ".join(r) + r"\\")
+        body.append(" & ".join(conv_citations(c) for c in r) + r"\\")
     return r"""\begin{table}[H]
 \tablesize{\footnotesize}
 \caption{%s}
@@ -272,9 +272,9 @@ def T(caption, label, cols, rows):
 
 def gen_tables():
     C = r">{\centering\arraybackslash}X"
-    t1 = T("Positioning of FedRBC against representative systems ($\\checkmark$ = full, $\\circ$ = partial, $\\times$ = none).",
+    t1 = T("Positioning of FedRBC against representative systems ($\\checkmark$ = full, $\\circ$ = partial, $\\times$ = none). Bold marks the strongest capability per column.",
            "tab:t1", [["System","Year","Robust aggregation","Persistent trust","Trust-gated selection","Network containment","Collusion resistance","Eval. vs. model-layer attacks"], "l"+C*7], [
-        ["DeepChain [N17]","2019","$\\times$","$\\checkmark$ (audit only)","$\\times$","$\\times$","$\\times$","$\\times$"],
+        ["DeepChain [C1]","2019","$\\times$","$\\checkmark$ (audit only)","$\\times$","$\\times$","$\\times$","$\\times$"],
         ["FLTrust [B3]","2021","$\\checkmark$ (root gate)","$\\times$","$\\times$","$\\times$","$\\circ$","$\\circ$"],
         ["EIFFeL [B5]","2022","$\\checkmark$ (coord. vote)","$\\times$","$\\times$","$\\times$","$\\times$","$\\circ$"],
         ["FedGT [N22]","2025","$\\checkmark$ (hard identify)","$\\circ$","$\\circ$","$\\times$","$\\times$","$\\times$"],
@@ -295,7 +295,7 @@ def gen_tables():
         ["Threat","Byzantine ratio $\\beta$ (default)","30\\%","Testbed","GPUs","2$\\times$ V100S-32GB"],
         ["Selection","utility $u_i$ / cost $c_i$","$\\mathcal{U}[0,1]$ / $\\mathcal{U}[1,5]$","---","---","---"],
     ])
-    t3 = T("Threat-model coverage matrix ($\\checkmark$ = covered, partial = limited, $\\times$ = not covered).","tab:t3",
+    t3 = T("Threat-model coverage matrix ($\\checkmark$ = covered, partial = limited, $\\times$ = not covered). Bold marks the strongest coverage per attack class.","tab:t3",
            [["System","Year","Magnitude (scaling)","Direction (sign-flip)","Collusion (Sybil)","Data (label-flip)","Persistent audit","Selection-aware"],"l"+C*7], [
         ["RAID [N11]","2026","$\\times$","partial (scoring lag)","$\\times$","partial (soft score)","$\\times$","$\\times$"],
         ["FedGT [N22]","2025","$\\times$ (no clipping)","$\\checkmark$ (hard identify)","$\\checkmark$ (hard identify)","$\\circ$ (direction)","$\\times$","$\\times$"],
@@ -337,7 +337,7 @@ def gen_tables():
         ["Sybil collusion","\\textbf{0.730$\\pm$0.344}","0.592$\\pm$0.514","0.629$\\pm$0.546","0.417$\\pm$0.400"],
         ["Label-flip","\\textbf{0.992$\\pm$0.000}","0.615$\\pm$0.537","0.575$\\pm$0.489","0.947$\\pm$0.078"],
     ])
-    t6 = T("Extended threat-model results (WUSTL-EHMS-2020; mean$\\pm$std; LIE 5 seeds, backdoor 3 seeds, root-poison 3 seeds, Byzantine-ratio extension 3 seeds). ASR = attack success rate of trigger-carrying benign samples.","tab:t6",
+    t6 = T("Extended threat-model results (WUSTL-EHMS-2020; mean$\\pm$std; LIE 5 seeds, backdoor 3 seeds, root-poison 3 seeds, Byzantine-ratio extension 3 seeds). ASR = attack success rate of trigger-carrying benign samples. Bold marks FedRBC (Ours). The $\\beta{=}0.5$ rows are stress tests outside Theorem 1's guaranteed envelope ($\\beta < 1/2$); no theoretical claim is made for them.","tab:t6",
            [["Study","Method","F1","ASR"],"l"+C*3], [
         ["LIE (collusive)","\\textbf{FedRBC (Ours)}","0.517$\\pm$0.054","---"],
         ["","FLTrust","0.605$\\pm$0.066","---"],
@@ -361,7 +361,7 @@ def gen_tables():
         ["","EIFFeL (2022)","0.138$\\pm$0.239","---"],
         ["","FedAvg","0.148$\\pm$0.129","---"],
     ])
-    t7 = T("Accuracy--robustness trade-off under the DP output-perturbation layer (Eq. 16; F1, 3 seeds; sign-flip and Sybil attacks at $\\beta=30\\%$).","tab:t7",
+    t7 = T("Accuracy--robustness trade-off under the DP output-perturbation layer (Eq. 16; F1, 3 seeds; sign-flip and Sybil attacks at $\\beta=30\\%$). Bold marks FedRBC (Ours).","tab:t7",
            [["$\\sigma_{\\mathrm{dp}}$","Method","Sign-flip F1","Sybil F1"],"l"+C*3], [
         ["0.005","\\textbf{FedRBC (Ours)}","0.608$\\pm$0.040","0.549$\\pm$0.093"],
         ["","FLTrust","0.591$\\pm$0.095","0.539$\\pm$0.025"],
@@ -567,7 +567,7 @@ def build_tex(abstract, keywords, secs, thebibliography, appendix_algo, appendix
 
 \textsuperscript{2}Institute of Applied Mathematics, Hebei Academy of Sciences, Shijiazhuang 050081, China
 
-\textsuperscript{3}Information Security Authentication Technology Innovation Center of Hebei Province, Shijiazhuang 050081, China
+\textsuperscript{3}Hebei Information Security Authentication Technology Innovation Center, Hebei Academy of Sciences, Shijiazhuang 050081, China
 }%
 
 \corres{Corresponding Author: Zhigang Jin. Email: zgjin@tju.edu.cn}
@@ -591,7 +591,7 @@ def build_tex(abstract, keywords, secs, thebibliography, appendix_algo, appendix
 
 \authorcontributions{The authors confirm contribution to the paper as follows: Conceptualization, Song Tang and Zhigang Jin; methodology, Song Tang; software, Song Tang; validation, Song Tang and Zhiqiang Wang; formal analysis, Song Tang; investigation, Song Tang and Zhiqiang Wang; resources, Zhigang Jin; data curation, Song Tang; writing---original draft preparation, Song Tang; writing---review and editing, Zhigang Jin and Zhiqiang Wang; visualization, Song Tang; supervision, Zhigang Jin; project administration, Zhigang Jin; funding acquisition, Zhigang Jin. All authors reviewed and approved the final version of the manuscript.}
 
-\availabilityofdataandmaterials{The complete package supporting this study is openly available in the FedRBC repository at \url{https://github.com/tangsng/FedRBC}: training, attack, and aggregation code; the Solidity contract suite; per-seed raw results (JSON summaries, per-round CSV, reputation trajectories) for all 388 runs of the revised evaluation; figure- and table-generation scripts that read only the released data; and a README reconstructing every table and figure from raw files with one command per artifact.}
+\availabilityofdataandmaterials{The complete package supporting this study is openly available in the FedRBC repository at \url{https://github.com/tangsng/FedRBC}: training, attack, and aggregation code; the Solidity contract suite; per-seed raw results (JSON summaries, per-round CSV, reputation trajectories) for all 388 runs of the revised evaluation; figure- and table-generation scripts that read only the released data; and a README reconstructing every table and figure from raw files with one command per artifact. The two benchmark datasets analyzed in this study are publicly available from their providers: the WUSTL-EHMS-2020 healthcare traffic dataset at \url{https://www.cse.wustl.edu/~jain/ehms/index.html}, and the CICIoT2023 attack dataset at \url{https://media.githubusercontent.com/media/val-co/CIC-IoT-2023-Dataset/master/part-00000-363d1ba3-8ab5-4f96-bc25-4d5862db7cb9-c000.csv}.}
 
 \ethicsapproval{Not applicable.}
 
